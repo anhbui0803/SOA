@@ -49,6 +49,9 @@ urlpatterns = [
     path('pay_booked', views.pay_booked,name='pay-booked'),
     path('delete_booking', views.delete_booking,name='delete-booking'),
     path('find_trip', views.find_trip,name='find-trip-page'),
-    path('group_customer', views.group_customer,name='group-page'),
-    path('group_customer/<int:pk>', views.group_customer,name='group-pk'),
+    path('group', views.group_mgt,name='group-page'),
+    path('manage_group', views.manage_group,name='manage-group'),
+    path('save_group', views.save_group,name='save-group'),
+    path('manage_group/<int:pk>', views.manage_group,name='manage-group-pk'),
+    path('delete_group', views.delete_group,name='delete-group'),
 ]

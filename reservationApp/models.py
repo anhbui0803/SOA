@@ -92,7 +92,7 @@ class Booking(models.Model):
 class Group(models.Model):
     name = models.CharField(max_length=100)
     discount = models.FloatField()
-    active = models.BooleanField(default=True)
+    status = models.CharField(max_length=2, choices=(('1','Active'),('2','Inactive')), default=1)
 
     def __str__(self):
         return self.name

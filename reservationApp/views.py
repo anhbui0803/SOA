@@ -8,7 +8,7 @@ import json
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from reservationApp.forms import UserRegistration, UpdateProfile, UpdatePasswords, SaveCategory, SaveLocation, SaveBus, SaveBrand, SaveSchedule, SaveBooking, PayBooked
+from reservationApp.forms import UserRegistration, UpdateProfile, UpdatePasswords, SaveCategory, SaveLocation, SaveBus, SaveBrand, SaveSchedule, SaveBooking, PayBooked, SaveGroup
 from reservationApp.models import Booking, Category, Customer, Group, Location, Bus, Schedule, BusBrand
 from cryptography.fernet import Fernet
 from django.conf import settings
@@ -365,11 +365,11 @@ def delete_brand(request):
             messages.success(request, 'Brand has been deleted successfully')
             resp['status'] = 'success'
         except Exception as err:
-            resp['msg'] = 'bus has failed to delete'
+            resp['msg'] = 'Brand has failed to delete'
             print(err)
 
     else:
-        resp['msg'] = 'bus has failed to delete'
+        resp['msg'] = 'Brand has failed to delete'
     
     return HttpResponse(json.dumps(resp), content_type="application/json")   
 
@@ -574,16 +574,65 @@ def find_trip(request):
     context['today'] = today
     return render(request, 'find_trip.html', context)
     
-def group_customer(request, pk=None):
-    template = "group_customer.html"
-    context["page_title"] = "Group Customer"
-    if pk is not None:
-        # Query customers have group_id = pk
-        customers = Customer.objects.filter(group_id=pk)
-        context["customers"] = customers
-        template = "group_customer_form.html"
-    else:
-        groups = Group.objects.all()
-        context["groups"] = groups
+# group
+@login_required
+def group_mgt(request):
+    context['page_title'] = "Groups"
+    groups = Group.objects.all()
+    context['groups'] = groups
 
-    return render(request, template, context)
+    return render(request, 'group_mgt.html', context)
+
+@login_required
+def save_group(request):
+    resp = {'status':'failed','msg':''}
+    if request.method == 'POST':
+        if (request.POST['id']).isnumeric():
+            group = Group.objects.get(pk=request.POST['id'])
+        else:
+            group = None
+        if group is None:
+            form = SaveGroup(request.POST)
+        else:
+            form = SaveGroup(request.POST, instance= group)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Group has been saved successfully.')
+            resp['status'] = 'success'
+        else:
+            for fields in form:
+                for error in fields.errors:
+                    resp['msg'] += str(error + "<br>")
+    else:
+        resp['msg'] = 'No data has been sent.'
+    return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
+@login_required
+def manage_group(request, pk=None):
+    context['page_title'] = "Manage Group"
+    if not pk is None:
+        group = Group.objects.get(id = pk)
+        context['group'] = group
+    else:
+        context['group'] = {}
+
+    return render(request, 'manage_group.html', context)
+
+@login_required
+def delete_group(request):
+    resp = {'status':'failed', 'msg':''}
+
+    if request.method == 'POST':
+        try:
+            group = Group.objects.get(id = request.POST['id'])
+            group.delete()
+            messages.success(request, 'Group has been deleted successfully')
+            resp['status'] = 'success'
+        except Exception as err:
+            resp['msg'] = 'Group has failed to delete'
+            print(err)
+
+    else:
+        resp['msg'] = 'Group has failed to delete'
+    
+    return HttpResponse(json.dumps(resp), content_type="application/json")   
