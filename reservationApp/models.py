@@ -5,16 +5,15 @@ from django.utils import timezone
 from django.dispatch import receiver
 from more_itertools import quantify
 from django.db.models import Sum
-from django.contrib.auth.models import User
 
 # Create your models here.
+
 class Category(models.Model):
     name = models.CharField(max_length=250)
     description = models.TextField()
     status = models.CharField(max_length=2, choices=(('1','Active'),('2','Inactive')), default=1)
     date_created = models.DateTimeField(default=timezone.now)
     date_updated = models.DateTimeField(auto_now=True)
-    discount = models.FloatField(default=0.0)
 
     def __str__(self):
         return self.name
@@ -54,7 +53,7 @@ class Schedule(models.Model):
         return str(self.code + ' - ' + self.bus.bus_number)
 
     def count_available(self):
-        booked = Booking.objects.filter(schedule=self).aggregate(Sum('seats'))['seats__sum'] or 0
+        booked = Booking.objects.filter(schedule=self).aggregate(Sum('seats'))['seats__sum']
         return self.bus.seats - booked
 
 class Booking(models.Model):
@@ -71,6 +70,23 @@ class Booking(models.Model):
 
     def total_payable(self):
         return self.seats * self.schedule.fare
+
+
+# @receiver(models.signals.post_save, sender=Invoice_Item)
+# def stock_update(sender, instance, **kwargs):
+#     stock = Stock(product = instance.product, quantity = instance.quantity, type = 2)
+#     stock.save()
+#     # stockID = Stock.objects.last().id
+#     Invoice_Item.objects.filter(id= instance.id).update(stock=stock)
+
+# @receiver(models.signals.post_delete, sender=Invoice_Item)
+# def delete_stock(sender, instance, **kwargs):
+#     try:
+#         stock = Stock.objects.get(id=instance.stock.id).delete()
+#     except:
+#         return instance.stock.id
+
+
 
     
     

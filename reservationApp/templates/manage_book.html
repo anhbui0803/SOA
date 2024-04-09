@@ -16,11 +16,11 @@
         </div>
         <div class="form-group mb-3">
             <label for="fare" class="control-label">Fare</label>
-            <input class="form-control rounded-0 text-end" id="fare" type="text" value="{{  schedule.fare|intcomma }}" disable>
+            <input class="form-control rounded-0 text-end" id="fare" type="text" value="{{  schedule.fare|intcomma }}" disabled>
         </div>
         <div class="form-group mb-3">
             <label for="payable" class="control-label">Payable Amount</label>
-            <input class="form-control rounded-0 text-end" id="payable" type="text" value="{% if book.total_payable %}{{ book.total_payable }}{% else %}0.00{% endif %}" disable>
+            <input class="form-control rounded-0 text-end" id="payable" type="text" value="{% if book.total_payable %}{{ book.total_payable }}{% else %}0.00{% endif %}" disabled>
         </div>
     </form>
 </div>

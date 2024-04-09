@@ -1,36 +1,19 @@
 {% load customfilter %}
 <div class="container-fluid">
-    <form action=" " id="category-form">
+    <form action=" " id="stock-form">
         {% csrf_token %}
-        <input type="hidden" name="id" value="{{ category.id }}">
+        <input type="hidden" name="id" value="{{ stock.id }}">
+        <input type="hidden" name="product" value="{{ pid }}">
+        <input type="hidden" name="type" value="1">
         <div class="form-group mb-3 ">
-            <label for="name" class="control-label">Category Name</label>
-            <input type="text" class="form-control rounded-0" id="name" name="name" value="{{ category.name }}" required>
-        </div>
-        <div class="form-group mb-3">
-            <label for="description" class="control-label">Description</label>
-            <textarea class="form-control rounded-0" name="description" id="description" rows="5" required>{{ category.description }}</textarea>
-        </div>
-        <div class="form-group mb-3 ">
-            <label for="status" class="control-label">Status</label>
-            <select name="status" id="status" class="form-select rounded-0">
-                {% if not category.status or category.status == '1' %}
-                <option value="1" selected>Active</option>
-                {% else %}
-                <option value="1" >Active</option>
-                {% endif %}
-                {% if category.status == '2' %}
-                <option value="2" selected>Inactive</option>
-                {% else %}
-                <option value="2" >Inactive</option>
-                {% endif %}
-            </select>
+            <label for="quantity" class="control-label">Quantity</label>
+            <input type="number" step="any" class="form-control rounded-0 text-end" id="quantity" name="quantity" value="{{ stock.quantity }}" required>
         </div>
     </form>
 </div>
 <script>
     $(function() {
-        $('#category-form').submit(function(e) {
+        $('#stock-form').submit(function(e) {
             e.preventDefault();
             var _this = $(this)
             $('.err-msg').remove();
@@ -43,7 +26,7 @@
             }
             start_loader();
             $.ajax({
-                url: "{% url 'save-category' %}",
+                url: "{% url 'save-stock' %}",
                 data: new FormData($(this)[0]),
                 cache: false,
                 contentType: false,

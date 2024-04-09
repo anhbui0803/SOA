@@ -2,7 +2,7 @@ from email import message
 from unicodedata import category
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from btrs_django.settings import MEDIA_ROOT, MEDIA_URL
 import json
 from django.contrib import messages

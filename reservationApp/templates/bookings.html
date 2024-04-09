@@ -4,9 +4,6 @@
         <div class="card-header">
             <div class="d-flex w-100 align-items-center justify-content-between">
                 <h4 class="card-title fw-bold">List of Bookings</h4>
-                <div class="tools">
-                    <button type="button" class="btn btn-primary rounded-0 bg-gradient btn-sm" id='add_new'><i class="fa fa-plus"></i> Add New</button>
-                </div>
             </div>
         </div>
         <div class="card-body">
@@ -70,9 +67,7 @@
 {% endblock pageContent %} {% block ScriptBlock %}
 <script>
     $(function() {
-        $('#add_new').click(function() {
-            uni_modal('<i class="fa fa-plus"></i> Add Booking', '{% url "manage-booking" %}', 'modal-md')
-        })
+       
         $('.view-data').click(function() {
             uni_modal('<i class="fa fa-edit"></i> View Booking Detail', $(this).attr('data-url'), 'modal-md')
         })
