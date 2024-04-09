@@ -3,7 +3,7 @@
     <div class="card card-default rounded-0 shadow ">
         <div class="card-header">
             <div class="d-flex w-100 align-items-center justify-content-between">
-                <h4 class="card-title fw-bold">List of Orders</h4>
+                <h4 class="card-title fw-bold">Bus Brand</h4>
                 <div class="tools">
                     <button type="button" class="btn btn-primary rounded-0 bg-gradient btn-sm" id='add_new'><i class="fa fa-plus"></i> Add New</button>
                 </div>
@@ -11,52 +11,29 @@
         </div>
         <div class="card-body">
             <div class="container-fluid">
-                <table class="table table-bordered" id="booking-list">
+                <table class="table table-bordered" id="brand-list">
                     <colgroup>
-                        <col width="5%">
-                        <col width="30%">
-                        <col width="20%">
                         <col width="10%">
+                        <col width="65%">
                         <col width="15%">
-                        <col width="10%">
-                        <col width="10%">
                     </colgroup>
                     <thead>
                         <tr class="bg-gradient bg-primary bg-opacity-50 text-light">
                             <th class="px-2 py-2 text-center">ID</th>
-                            <th class="px-2 py-2 text-center">Ordered By</th>
-                            <th class="px-2 py-2 text-center">Schedule</th>
-                            <th class="px-2 py-2 text-center">Seats</th>
-                            <th class="px-2 py-2 text-center">Ticket Type</th>
-                            <th class="px-2 py-2 text-center">Total Price</th>
-                            <th class="px-2 py-2 text-center">Status</th>
+                            <th class="px-2 py-2 text-center">Brand Name</th>
                             <th class="px-2 py-2 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for booked in bookings %}
+                        {% for brand in brands %}
                         <tr>
                             <td class="px-2 py-1 align-middle">{{ forloop.counter }}</td>
-                            <td class="px-2 py-1 align-middle">{{ booked.name }}</td>
-                            <td class="px-2 py-1 align-middle">
-                                <div class="lh-1">
-                                    <div>{{ booked.schedule.schedule|date:"Y-m-d h:i A" }}</div>
-                                    <div>{{ booked.schedule.bus.bus_number }}</div>
-                                </div>
-                            </td>
-                            <td class="px-2 py-1 align-middle">{{ booked.schedule.schedule|date:"Y-m-d h:i A" }}</td>
-                            <td class="px-2 py-1 align-middle text-end">{{ booked.seats|intcomma }}</td>
-                            <td class="px-2 py-1 align-middle text-end">{{ booked.schedule.bus.category }}</td>
-                            <td class="px-1 py-1 align-middle text-center">
-                                {% if booked.status == '1' %}
-                                <span class="badge bg-primary bg-gradient rounded-pill px-2">Pending</span> {% else %}
-                                <span class="badge bg-success bg-gradient rounded-pill px-2">Paid</span> {% endif %}
-                            </td>
+                            <td class="px-2 py-1 align-middle">{{ brand.brand_name }}</td>
                             <td class="px-2 py-1 align-middle text-center">
-                                <a class="btn btn-outline-primary btn-sm view-data" href="javascript:void(0)" data-url="{% url 'veiw-booking' booked.pk %}" title="View Booking">
-                                    <i class="fa fa-eye"></i>
+                                <a class="btn btn-outline-primary btn-sm edit-data" href="javascript:void(0)" data-id="{{ brand.pk }}" title="Edit">
+                                    <i class="fa fa-edit"></i>
                                 </a>
-                                <button class="btn btn-outline-danger btn-sm delete-data" type="button" data-id="{{ booked.pk }}" title="Delete">
+                                <button class="btn btn-outline-danger btn-sm delete-data" type="button" data-id="{{ brand.pk }}" title="Delete">
                                     <i class="fa fa-trash"></i>
                                 </button>
                             </td>
@@ -72,19 +49,19 @@
 <script>
     $(function() {
         $('#add_new').click(function() {
-            uni_modal('<i class="fa fa-plus"></i> Add Booking', '{% url "manage-booking" %}', 'modal-md')
+            uni_modal('<i class="fa fa-plus"></i> Add Brand', '{% url "manage-brand" %}', 'modal-md')
         })
-        $('.view-data').click(function() {
-            uni_modal('<i class="fa fa-edit"></i> View Booking Detail', $(this).attr('data-url'), 'modal-md')
+        $('.edit-data').click(function() {
+            uni_modal('<i class="fa fa-edit"></i> Edit Brand', '{% url "manage-brand" %}/' + $(this).attr('data-id'), 'modal-md')
         })
         $('.delete-data').click(function() {
-            _conf("Are you sure to delete this Booking permanently?", "delete_booking", [$(this).attr('data-id')])
+            _conf("Are you sure to delete this Brand permanently?", "delete_brand", [$(this).attr('data-id')])
         })
 
-        $('#booking-list').DataTable({
+        $('#brand-list').DataTable({
             columnDefs: [{
                 orderable: false,
-                targets: 6
+                targets: 5
             }],
             initComplete: function(settings, json) {
                 $('table td, table th').addClass('px-2 py-1')
@@ -95,7 +72,7 @@
         })
     })
 
-    function delete_booking($id) {
+    function delete_brand($id) {
         start_loader();
         var _this = $(this)
         $('.err-msg').remove();
@@ -103,7 +80,7 @@
         el.addClass("alert alert-danger err-msg")
         el.hide()
         $.ajax({
-            url: '{% url "delete-booking" %}',
+            url: '{% url "delete-brand" %}',
             headers: {
                 'X-CSRFToken': "{{csrf_token}}"
             },

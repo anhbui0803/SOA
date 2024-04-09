@@ -19,16 +19,17 @@
                         <col width="20%">
                         <col width="10%">
                         <col width="10%">
-                        <col width="15%">
+                        {% comment %} <col width="15%"> {% endcomment %}
                     </colgroup>
                     <thead>
                         <tr class="bg-gradient bg-primary bg-opacity-50 text-light">
-                            <th class="px-2 py-2 text-center">#</th>
-                            <th class="px-2 py-2 text-center">Date/Time Created</th>
-                            <th class="px-2 py-2 text-center">Bus #</th>
-                            <th class="px-2 py-2 text-center">Category</th>
+                            <th class="px-2 py-2 text-center">ID</th>
+                            {% comment %} <th class="px-2 py-2 text-center">Tickets</th> {% endcomment %}
+                            <th class="px-2 py-2 text-center">Bus Number</th>
                             <th class="px-2 py-2 text-center">Seats</th>
-                            <th class="px-2 py-2 text-center">Status</th>
+                            <th class="px-2 py-2 text-center">License Plate</th>
+                            <th class="px-2 py-2 text-center">Brand ID</th>
+                            {% comment %} <th class="px-2 py-2 text-center">Category</th> {% endcomment %}
                             <th class="px-2 py-2 text-center">Action</th>
                         </tr>
                     </thead>
@@ -36,15 +37,11 @@
                         {% for bus in buses %}
                         <tr>
                             <td class="px-2 py-1 align-middle">{{ forloop.counter }}</td>
-                            <td class="px-2 py-1 align-middle">{{ bus.date_created|date:"Y-m-d h:i A" }}</td>
-                            <td class="px-2 py-1 align-middle">{{ bus }}</td>
-                            <td class="px-2 py-1 align-middle">{{ bus.category }}</td>
+                            {% comment %} <td class="px-2 py-1 align-middle">{{ bus.category }}</td> {% endcomment %}
+                            <td class="px-2 py-1 align-middle">{{ bus.bus_number }}</td>
                             <td class="px-2 py-1 align-middle">{{ bus.seats|floatformat:0|intcomma }}</td>
-                            <td class="px-1 py-1 align-middle text-center">
-                                {% if bus.status == '1' %}
-                                <span class="badge bg-primary bg-gradient rounded-pill px-2">Active</span> {% else %}
-                                <span class="badge bg-secondary bg-gradient rounded-pill px-2">Inactive</span> {% endif %}
-                            </td>
+                            <td class="px-2 py-1 align-middle">{{ bus.license_plate }}</td>
+                            <td class="px-2 py-1 align-middle">{{ bus.brand_id }}</td>
                             <td class="px-2 py-1 align-middle text-center">
                                 <a class="btn btn-outline-primary btn-sm edit-data" href="javascript:void(0)" data-id="{{ bus.pk }}" title="Edit">
                                     <i class="fa fa-edit"></i>

@@ -1,9 +1,10 @@
-{% extends 'base.html' %} {% block pageContent %}
+{% extends 'base.html' %} 
+{% block pageContent %}
 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
     <div class="card card-default rounded-0 shadow ">
         <div class="card-header">
             <div class="d-flex w-100 align-items-center justify-content-between">
-                <h4 class="card-title fw-bold">Trip Categories</h4>
+                <h4 class="card-title fw-bold">Tickets List</h4>
                 <div class="tools">
                     <button type="button" class="btn btn-primary rounded-0 bg-gradient btn-sm" id='add_new'><i class="fa fa-plus"></i> Add New</button>
                 </div>
@@ -14,7 +15,7 @@
                 <table class="table table-bordered" id="category-list">
                     <colgroup>
                         <col width="5%">
-                        <col width="15%">
+                        {% comment %} <col width="15%"> {% endcomment %}
                         <col width="20%">
                         <col width="30%">
                         <col width="15%">
@@ -22,11 +23,11 @@
                     </colgroup>
                     <thead>
                         <tr class="bg-gradient bg-primary bg-opacity-50 text-light">
-                            <th class="px-2 py-2 text-center">#</th>
-                            <th class="px-2 py-2 text-center">Date/Time</th>
-                            <th class="px-2 py-2 text-center">Name</th>
+                            <th class="px-2 py-2 text-center">ID</th>
+                            {% comment %} <th class="px-2 py-2 text-center">Time Created</th> {% endcomment %}
+                            <th class="px-2 py-2 text-center">Ticket Type</th>
                             <th class="px-2 py-2 text-center">Description</th>
-                            <th class="px-2 py-2 text-center">Status</th>
+                            <th class="px-2 py-2 text-center">Price</th>
                             <th class="px-2 py-2 text-center">Action</th>
                         </tr>
                     </thead>
@@ -34,16 +35,12 @@
                         {% for category in categories %}
                         <tr>
                             <td class="px-2 py-1 align-middle">{{ forloop.counter }}</td>
-                            <td class="px-2 py-1 align-middle">{{ category.date_created|date:"Y-m-d h:i A" }}</td>
+                            {% comment %} <td class="px-2 py-1 align-middle">{{ category.date_created|date:"Y-m-d h:i A" }}</td> {% endcomment %}
                             <td class="px-2 py-1 align-middle">{{ category.name }}</td>
                             <td class="px-2 py-1 align-middle">
                                 <p class="m-0 text-truncate">{{ category.description }}</p>
                             </td>
-                            <td class="px-1 py-1 align-middle text-center">
-                                {% if category.status == '1' %}
-                                <span class="badge bg-primary bg-gradient rounded-pill px-2">Active</span> {% else %}
-                                <span class="badge bg-secondary bg-gradient rounded-pill px-2">Inactive</span> {% endif %}
-                            </td>
+                            <td class="px-1 py-1 align-middle text-center">{{ category.price|floatformat:1 }}</td>
                             <td class="px-2 py-1 align-middle text-center">
                                 <a class="btn btn-outline-primary btn-sm edit-data" href="javascript:void(0)" data-id="{{ category.pk }}" title="Edit">
                                     <i class="fa fa-edit"></i>
@@ -60,17 +57,19 @@
         </div>
     </div>
 </div>
-{% endblock pageContent %} {% block ScriptBlock %}
+{% endblock pageContent %} 
+
+{% block ScriptBlock %}
 <script>
     $(function() {
         $('#add_new').click(function() {
-            uni_modal('<i class="fa fa-plus"></i> Add Category', '{% url "manage-category" %}', 'modal-md')
+            uni_modal('<i class="fa fa-plus"></i> Add Ticket', '{% url "manage-category" %}', 'modal-md')
         })
         $('.edit-data').click(function() {
-            uni_modal('<i class="fa fa-edit"></i> Edit Category', '{% url "manage-category" %}/' + $(this).attr('data-id'), 'modal-md')
+            uni_modal('<i class="fa fa-edit"></i> Edit Ticket', '{% url "manage-category" %}/' + $(this).attr('data-id'), 'modal-md')
         })
         $('.delete-data').click(function() {
-            _conf("Are you sure to delete this Category permanently?", "delete_category", [$(this).attr('data-id')])
+            _conf("Are you sure to delete this Ticket permanently?", "delete_category", [$(this).attr('data-id')])
         })
 
         $('#category-list').DataTable({

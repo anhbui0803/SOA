@@ -4,10 +4,10 @@
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ location.id }}">
         <div class="form-group mb-3">
-            <label for="location" class="control-label">Location</label>
+            <label for="location" class="control-label">District</label>
             <textarea class="form-control rounded-0" name="location" id="location" rows="5" required>{{ location.location }}</textarea>
         </div>
-        <div class="form-group mb-3 ">
+        <div class="form-group mb-3 " style="display: none;">
             <label for="status" class="control-label">Status</label>
             <select name="status" id="status" class="form-select rounded-0">
                 {% if not location.status or location.status == '1' %}

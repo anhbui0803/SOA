@@ -2,14 +2,14 @@ from email import message
 from unicodedata import category
 from django.shortcuts import render,redirect
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from btrs_django.settings import MEDIA_ROOT, MEDIA_URL
 import json
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from reservationApp.forms import UserRegistration, UpdateProfile, UpdatePasswords, SaveCategory, SaveLocation, SaveBus, SaveSchedule, SaveBooking, PayBooked
-from reservationApp.models import Booking, Category, Location, Bus, Schedule
+from reservationApp.forms import UserRegistration, UpdateProfile, UpdatePasswords, SaveCategory, SaveLocation, SaveBus, SaveBrand, SaveSchedule, SaveBooking, PayBooked
+from reservationApp.models import Booking, Category, Customer, Group, Location, Bus, Schedule, BusBrand
 from cryptography.fernet import Fernet
 from django.conf import settings
 import base64
@@ -51,7 +51,7 @@ def home(request):
     context['buses'] = Bus.objects.count()
     context['categories'] = Category.objects.count()
     context['upcoming_trip'] = Schedule.objects.filter(status= 1, schedule__gt = datetime.today()).count()
-    return render(request, 'home.html',context)
+    return render(request, 'home.html', context)
 
 def registerUser(request):
     user = request.user
@@ -120,7 +120,7 @@ def profile(request):
 # Category
 @login_required
 def category_mgt(request):
-    context['page_title'] = "Bus Categories"
+    context['page_title'] = "Bus Tickets"
     categories = Category.objects.all()
     context['categories'] = categories
 
@@ -243,7 +243,6 @@ def delete_location(request):
     
     return HttpResponse(json.dumps(resp), content_type="application/json")
 
-
 # bus
 @login_required
 def bus_mgt(request):
@@ -280,8 +279,8 @@ def save_bus(request):
 @login_required
 def manage_bus(request, pk=None):
     context['page_title'] = "Manage Bus"
-    categories = Category.objects.filter(status = 1).all()
-    context['categories'] = categories
+    # categories = Category.objects.filter(status = 1).all()
+    # context['categories'] = categories
     if not pk is None:
         bus = Bus.objects.get(id = pk)
         context['bus'] = bus
@@ -309,11 +308,75 @@ def delete_bus(request):
     
     return HttpResponse(json.dumps(resp), content_type="application/json")    
 
+# bus brand
+@login_required
+def brand_mgt(request):
+    context['page_title'] = "Bus Brands"
+    brands = BusBrand.objects.all()
+    context['brands'] = brands
+
+    return render(request, 'brand_mgt.html', context)
+
+@login_required
+def save_brand(request):
+    resp = {'status':'failed','msg':''}
+    if request.method == 'POST':
+        if (request.POST['id']).isnumeric():
+            brand = BusBrand.objects.get(pk=request.POST['id'])
+        else:
+            brand = None
+        if brand is None:
+            form = SaveBrand(request.POST)
+        else:
+            form = SaveBrand(request.POST, instance= brand)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Brand has been saved successfully.')
+            resp['status'] = 'success'
+        else:
+            for fields in form:
+                for error in fields.errors:
+                    resp['msg'] += str(error + "<br>")
+    else:
+        resp['msg'] = 'No data has been sent.'
+    return HttpResponse(json.dumps(resp), content_type = 'application/json')
+
+@login_required
+def manage_brand(request, pk=None):
+    context['page_title'] = "Manage Brand"
+    if not pk is None:
+        brand = BusBrand.objects.get(id = pk)
+        print(brand)
+        context['brand'] = brand
+    else:
+        context['brand'] = {}
+        print("NULL")
+
+    return render(request, 'manage_brand.html', context)
+
+@login_required
+def delete_brand(request):
+    resp = {'status':'failed', 'msg':''}
+
+    if request.method == 'POST':
+        try:
+            brand = BusBrand.objects.get(id = request.POST['id'])
+            brand.delete()
+            messages.success(request, 'Brand has been deleted successfully')
+            resp['status'] = 'success'
+        except Exception as err:
+            resp['msg'] = 'bus has failed to delete'
+            print(err)
+
+    else:
+        resp['msg'] = 'bus has failed to delete'
+    
+    return HttpResponse(json.dumps(resp), content_type="application/json")   
 
 # schedule
 @login_required
 def schedule_mgt(request):
-    context['page_title'] = "Trip Schedules"
+    context['page_title'] = "Bus Routes"
     schedules = Schedule.objects.all()
     context['schedules'] = schedules
 
@@ -348,8 +411,10 @@ def manage_schedule(request, pk=None):
     context['page_title'] = "Manage Schedule"
     buses = Bus.objects.filter(status = 1).all()
     locations = Location.objects.filter(status = 1).all()
+    brands = BusBrand.objects.all()
     context['buses'] = buses
     context['locations'] = locations
+    context['brands'] = brands
     if not pk is None:
         schedule = Schedule.objects.get(id = pk)
         context['schedule'] = schedule
@@ -375,7 +440,7 @@ def delete_schedule(request):
     else:
         resp['msg'] = 'Schedule has failed to delete'
     
-    return HttpResponse(json.dumps(resp), content_type="application/json")  
+    return HttpResponse(json.dumps(resp), content_type="application/json")   
 
 
 # scheduled Trips
@@ -509,3 +574,16 @@ def find_trip(request):
     context['today'] = today
     return render(request, 'find_trip.html', context)
     
+def group_customer(request, pk=None):
+    template = "group_customer.html"
+    context["page_title"] = "Group Customer"
+    if pk is not None:
+        # Query customers have group_id = pk
+        customers = Customer.objects.filter(group_id=pk)
+        context["customers"] = customers
+        template = "group_customer_form.html"
+    else:
+        groups = Group.objects.all()
+        context["groups"] = groups
+
+    return render(request, template, context)

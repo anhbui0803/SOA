@@ -14,13 +14,41 @@
             <label for="seats" class="control-label">Number of Seats</label>
             <input class="form-control rounded-0" name="seats" id="seats" max="{{ schedule.count_available|floatformat:0 }}" type="number" value="{{ book.seats }}" required>
         </div>
-        <div class="form-group mb-3">
-            <label for="fare" class="control-label">Fare</label>
-            <input class="form-control rounded-0 text-end" id="fare" type="text" value="{{  schedule.fare|intcomma }}" disabled>
+        <div class="form-group mb-3 ">
+            <label for="category" class="control-label">Tickets</label>
+            <select name="category" id="category" class="form-select rounded-0">
+                {% if not booked.category %}
+                <option selected></option>
+                {% else %}
+                <option ></option>
+                {% endif %}
+                {% for category in categories %}
+                {% if booked.category.id == category.id %}
+                <option value="{{ category.id }}" selected>{{ category }}</option>
+                {% else %}
+                <option value="{{ category.id }}" >{{ category }}</option>
+                {% endif %}
+                {% endfor %}
+            </select>
         </div>
-        <div class="form-group mb-3">
-            <label for="payable" class="control-label">Payable Amount</label>
-            <input class="form-control rounded-0 text-end" id="payable" type="text" value="{% if book.total_payable %}{{ book.total_payable }}{% else %}0.00{% endif %}" disabled>
+        <div class="form-group mb-3 " style="display: none;">
+            <label for="status" class="control-label">Status</label>
+            <select name="status" id="status" class="form-select rounded-0">
+                {% if not booked.status or booked.status == '1' %}
+                <option value="1" selected>Active</option>
+                {% else %}
+                <option value="1" >Active</option>
+                {% endif %}
+                {% if bus.status == '2' %}
+                <option value="2" selected>Inactive</option>
+                {% else %}
+                <option value="2" >Inactive</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="form-group mb-3" >
+            <label for="total_price" class="control-label">Total Price</label>
+            <input class="form-control rounded-0 text-end" id="total_price" type="text" value="{% if book.total_payable %}{{ book.total_payable }}{% else %}0.00{% endif %}" disable>
         </div>
     </form>
 </div>
@@ -32,7 +60,7 @@
             var seats = $(this).val()
             var total = parseFloat(fare) * parseFloat(seats)
             total = total > 0 ? total :0
-            $('#payable').val(parseFloat(total).toLocaleString('en-US'))
+            $('#total_price').val(parseFloat(total).toLocaleString('en-US'))
         })
         $('#category').select2({
             width:"100%",

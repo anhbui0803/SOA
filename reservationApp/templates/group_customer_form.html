@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load customfilter %}
+
+{% block pageContent %}
+<h3>Group Customer</h3>
+
+{% if groups %}
+<ul class="list-group">
+    {% for group in groups %}
+    <li class="list-group-item">
+        <h4 class="list-group-item-heading">{{ group.name }}</h4>
+        <p class="list-group-item-text">
+            Discount: {{ group.discount }} %<br>
+            Active: {{ group.active }}
+        </p>
+
+        <hr/>
+        <h4>Customers</h4>
+        <table class="table table-bordered">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+            </tr>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.email }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="alert alert-warning">No group customers found</div>
+{% endif %}
+
+{% endblock %}

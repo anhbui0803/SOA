@@ -5,7 +5,7 @@ from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm, UserC
 
 from django.contrib.auth.models import User
 from more_itertools import quantify
-from .models import Category, Location, Bus, Schedule, Booking
+from .models import Category, Location, Bus, Schedule, Booking, BusBrand
 from datetime import datetime
 
 class UserRegistration(UserCreationForm):
@@ -78,10 +78,11 @@ class SaveCategory(forms.ModelForm):
     name = forms.CharField(max_length="250")
     description = forms.Textarea()
     status = forms.ChoiceField(choices=[('1','Active'),('2','Inactive')])
+    price = forms.FloatField(min_value=0,max_value=100)
 
     class Meta:
         model = Category
-        fields = ('name','description','status')
+        fields = ('name', 'description', 'status', 'price')
 
     def clean_name(self):
         id = self.instance.id if self.instance.id else 0
@@ -122,21 +123,24 @@ class SaveLocation(forms.ModelForm):
 
 class SaveBus(forms.ModelForm):
     bus_number = forms.CharField(max_length="250")
-    category = forms.CharField(max_length="250")
+    # category = forms.CharField(max_length="250")
     seats = forms.CharField(max_length="250")
+    license_plate = forms.CharField(max_length="250")
+    brand_id = forms.CharField(max_length="250")
     status = forms.ChoiceField(choices=[('1','Active'),('2','Inactive')])
 
     class Meta:
         model = Bus
-        fields = ('bus_number','category','status','seats')
+        # fields = ('bus_number','category','seats','license_plate','brand_id','status',)
+        fields = ('bus_number','seats','license_plate','brand_id','status',)
 
-    def clean_category(self):
-        id = self.cleaned_data['category']
-        try:
-            category = Category.objects.get(id = id)
-            return category
-        except:
-            raise forms.ValidationError(f"Invalid Category Already Exists.")
+    # def clean_category(self):
+    #     id = self.cleaned_data['category']
+    #     try:
+    #         category = Category.objects.get(id = id)
+    #         return category
+    #     except:
+    #         raise forms.ValidationError(f"Invalid Category Already Exists.")
     
     def clean_bus_number(self):
         id = self.instance.id if self.instance.id else 0
@@ -151,19 +155,41 @@ class SaveBus(forms.ModelForm):
             return bus_number
             # raise forms.ValidationError(f"{bus_number} Category Already Exists.")
         raise forms.ValidationError(f"{bus_number} bus Already Exists.")
+    
+class SaveBrand(forms.ModelForm):
+    brand_name = forms.CharField(max_length="250")
+
+    class Meta:
+        model = BusBrand
+        fields = ('brand_name',)
+    
+    def clean_brand_name(self):
+        id = self.instance.id if self.instance.id else 0
+        brand_name = self.cleaned_data['brand_name']
+        # print(int(id) > 0)
+        try:
+            if int(id) > 0:
+                brand = BusBrand.objects.exclude(id=id).get(brand_name = brand_name)
+            else:
+                brand = BusBrand.objects.get(brand_name = brand_name)
+        except:
+            return brand_name
+            # raise forms.ValidationError(f"{bus_number} Category Already Exists.")
+        raise forms.ValidationError(f"{brand_name} brand Already Exists.")
 
 class SaveSchedule(forms.ModelForm):
     code = forms.CharField(max_length="250")
     bus = forms.IntegerField()
     depart = forms.IntegerField()
     destination = forms.IntegerField()
+    brand = forms.CharField(max_length="250")
     fare = forms.FloatField(min_value=0,max_value=999999)
     schedule = forms.CharField(max_length="250")
     status = forms.ChoiceField(choices=[('1','Active'),('2','Cancelled')])
 
     class Meta:
         model = Schedule
-        fields = ('code','bus','depart','destination','fare','schedule','status')
+        fields = ('code','bus','depart','destination','brand','fare','schedule','status')
     def clean_code(self):
         id = self.instance.id if self.instance.id else 0
         if id > 0:
@@ -211,16 +237,27 @@ class SaveSchedule(forms.ModelForm):
             return location
         except:
             raise forms.ValidationError("Destination is not recognized.")
+    
+    def clean_brand(self):
+        brand_id = self.cleaned_data['brand']
+
+        try:
+            brand = BusBrand.objects.get(id=brand_id)
+            return brand
+        except:
+            raise forms.ValidationError("Brand is not recognized.")
+                                        
 
 class SaveBooking(forms.ModelForm):
     code = forms.CharField(max_length="250")
     schedule = forms.CharField(max_length="250")
     name = forms.CharField(max_length="250")
     seats = forms.CharField(max_length="250")
+    total_price = forms.FloatField(min_value=0,max_value=999999)
 
     class Meta:
         model = Booking
-        fields = ('code','schedule','name','seats')
+        fields = ('code','schedule','name','seats','total_price')
 
     def clean_code(self):
         id = self.instance.id if self.instance.id else 0
@@ -259,105 +296,3 @@ class PayBooked(forms.ModelForm):
     class Meta:
         model = Booking
         fields = ('status',)
-
-
-    
-# class SaveProduct(forms.ModelForm):
-#     name = forms.CharField(max_length="250")
-#     description = forms.Textarea()
-#     status = forms.ChoiceField(choices=[('1','Active'),('2','Inactive')])
-#     description = forms.CharField(max_length=250)
-
-
-#     class Meta:
-#         model = Product
-#         fields = ('code','name','description','status','price')
-
-#     def clean_code(self):
-#         id = self.instance.id if self.instance.id else 0
-#         code = self.cleaned_data['code']
-#         try:
-#             if int(id) > 0:
-#                 product = Product.objects.exclude(id=id).get(code = code)
-#             else:
-#                 product = Product.objects.get(code = code)
-#         except:
-#             return code
-#         raise forms.ValidationError(f"{code} Category Already Exists.")
-
-# class SaveStock(forms.ModelForm):
-#     product = forms.CharField(max_length=30)
-#     quantity = forms.CharField(max_length=250)
-#     type = forms.ChoiceField(choices=[('1','Stock-in'),('2','Stock-Out')])
-
-#     class Meta:
-#         model = Stock
-#         fields = ('product', 'quantity', 'type')
-
-#     def clean_product(self):
-#         pid = self.cleaned_data['product']
-#         try:
-#             product = Product.objects.get(id=pid)
-#             print(product)
-#             return product
-#         except:
-#             raise forms.ValidationError("Product is not valid")
-
-# class SaveInvoice(forms.ModelForm):
-#     transaction = forms.CharField(max_length=100)
-#     customer = forms.CharField(max_length=250)
-#     total = forms.FloatField()
-
-#     class Meta:
-#         model = Invoice
-#         fields = ('transaction', 'customer', 'total')
-
-#     def clean_transaction(self):
-#         pref = datetime.today().strftime('%Y%m%d')
-#         transaction= ''
-#         code = str(1).zfill(4)
-#         while True:
-#             invoice = Invoice.objects.filter(transaction=str(pref + code)).count()
-#             if invoice > 0:
-#                 code = str(int(code) + 1).zfill(4)
-#             else:
-#                 transaction = str(pref + code)
-#                 break
-#         return transaction
-
-# class SaveInvoiceItem(forms.ModelForm):
-#     invoice = forms.CharField(max_length=30)
-#     product = forms.CharField(max_length=30)
-#     quantity = forms.CharField(max_length=100)
-#     price = forms.CharField(max_length=100)
-
-#     class Meta:
-#         model = Invoice_Item
-#         fields = ('invoice','product','quantity','price')
-
-#     def clean_invoice(self):
-#         iid = self.cleaned_data['invoice']
-#         try:
-#             invoice = Invoice.objects.get(id=iid)
-#             return invoice
-#         except:
-#             raise forms.ValidationError("Invoice ID is not valid")
-
-#     def clean_product(self):
-#         pid = self.cleaned_data['product']
-#         try:
-#             product = Product.objects.get(id=pid)
-#             return product
-#         except:
-#             raise forms.ValidationError("Product is not valid")
-
-#     def clean_quantity(self):
-#         qty = self.cleaned_data['quantity']
-#         if qty.isnumeric():
-#             return int(qty)
-#         raise forms.ValidationError("Quantity is not valid")
-    
-
-
-
-

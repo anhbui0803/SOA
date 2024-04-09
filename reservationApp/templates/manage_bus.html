@@ -3,8 +3,8 @@
     <form action=" " id="bus-form">
         {% csrf_token %}
         <input type="hidden" name="id" value="{{ bus.id }}">
-        <div class="form-group mb-3 ">
-            <label for="category" class="control-label">Category</label>
+        {% comment %} <div class="form-group mb-3 ">
+            <label for="category" class="control-label">Tickets</label>
             <select name="category" id="category" class="form-select rounded-0">
                 {% if not bus.category %}
                 <option selected></option>
@@ -19,7 +19,7 @@
                 {% endif %}
                 {% endfor %}
             </select>
-        </div>
+        </div> {% endcomment %}
         <div class="form-group mb-3">
             <label for="bus_number" class="control-label">Bus Number</label>
             <input class="form-control rounded-0" name="bus_number" id="bus_number" type="text" value="{{ bus.bus_number }}" required>
@@ -28,7 +28,15 @@
             <label for="seats" class="control-label">Number of Seats</label>
             <input class="form-control rounded-0" name="seats" id="seats" type="number" value="{{ bus.seats }}" required>
         </div>
-        <div class="form-group mb-3 ">
+        <div class="form-group mb-3">
+            <label for="bus_number" class="control-label">License Plate</label>
+            <input class="form-control rounded-0" name="license_plate" id="license_plate" type="text" value="{{ bus.license_plate }}" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="bus_number" class="control-label">Brand ID</label>
+            <input class="form-control rounded-0" name="brand_id" id="brand_id" type="text" value="{{ bus.brand_id }}" required>
+        </div>
+        <div class="form-group mb-3 " style="display: none;">
             <label for="status" class="control-label">Status</label>
             <select name="status" id="status" class="form-select rounded-0">
                 {% if not bus.status or bus.status == '1' %}
@@ -47,11 +55,11 @@
 </div>
 <script>
     $(function() {
-        $('#category').select2({
+        /*$('#category').select2({
             width:"100%",
-            placeholder: "Please Select Category Here",
+            placeholder: "Please Select Tickets Here",
             dropdownParent:$('#uni_modal')
-        })
+        })*/
         $('#bus-form').submit(function(e) {
             e.preventDefault();
             var _this = $(this)
